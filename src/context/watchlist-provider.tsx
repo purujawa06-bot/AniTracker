@@ -1,15 +1,15 @@
 "use client";
 
-import type { WatchlistItem, JikanAnime } from "@/lib/types";
+import type { WatchlistItem, JikanAnyMedia, JikanAnime, JikanManga } from "@/lib/types";
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 
 interface WatchlistContextType {
   watchlist: WatchlistItem[];
-  addToWatchlist: (anime: JikanAnime) => void;
-  removeFromWatchlist: (animeId: number) => void;
-  isWatchlisted: (animeId: number) => boolean;
-  updateWatchedEpisodes: (animeId: number, newCount: number) => void;
-  getWatchlistItem: (animeId: number) => WatchlistItem | undefined;
+  addToWatchlist: (media: JikanAnyMedia) => void;
+  removeFromWatchlist: (mediaId: number) => void;
+  isWatchlisted: (mediaId: number) => boolean;
+  updateWatchedParts: (mediaId: number, newCount: number) => void;
+  getWatchlistItem: (mediaId: number) => WatchlistItem | undefined;
   loading: boolean;
 }
 
@@ -42,42 +42,46 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
     }
   }, [watchlist, loading]);
 
-  const addToWatchlist = useCallback((anime: JikanAnime) => {
+  const addToWatchlist = useCallback((media: JikanAnyMedia) => {
     setWatchlist((prev) => {
-      if (prev.some((item) => item.mal_id === anime.mal_id)) {
+      if (prev.some((item) => item.mal_id === media.mal_id)) {
         return prev;
       }
+      
       const newItem: WatchlistItem = {
-        mal_id: anime.mal_id,
-        title: anime.title,
-        image: anime.images.jpg.large_image_url,
-        episodes: anime.episodes || 0,
-        watchedEpisodes: 0,
+        mal_id: media.mal_id,
+        title: media.title,
+        image: media.images.jpg.large_image_url,
+        type: 'episodes' in media ? 'anime' : 'manga',
+        totalParts: 'episodes' in media ? (media as JikanAnime).episodes : (media as JikanManga).chapters,
+        watchedParts: 0,
       };
       return [...prev, newItem];
     });
   }, []);
 
-  const removeFromWatchlist = useCallback((animeId: number) => {
-    setWatchlist((prev) => prev.filter((item) => item.mal_id !== animeId));
+  const removeFromWatchlist = useCallback((mediaId: number) => {
+    setWatchlist((prev) => prev.filter((item) => item.mal_id !== mediaId));
   }, []);
   
-  const isWatchlisted = useCallback((animeId: number) => {
-    return watchlist.some((item) => item.mal_id === animeId);
+  const isWatchlisted = useCallback((mediaId: number) => {
+    return watchlist.some((item) => item.mal_id === mediaId);
   }, [watchlist]);
 
-  const updateWatchedEpisodes = useCallback((animeId: number, newCount: number) => {
+  const updateWatchedParts = useCallback((mediaId: number, newCount: number) => {
     setWatchlist((prev) =>
-      prev.map((item) =>
-        item.mal_id === animeId
-          ? { ...item, watchedEpisodes: Math.max(0, Math.min(item.episodes || Infinity, newCount)) }
-          : item
-      )
+      prev.map((item) => {
+        if (item.mal_id === mediaId) {
+          const maxParts = item.totalParts || Infinity;
+          return { ...item, watchedParts: Math.max(0, Math.min(maxParts, newCount)) };
+        }
+        return item;
+      })
     );
   }, []);
   
-  const getWatchlistItem = useCallback((animeId: number) => {
-    return watchlist.find((item) => item.mal_id === animeId);
+  const getWatchlistItem = useCallback((mediaId: number) => {
+    return watchlist.find((item) => item.mal_id === mediaId);
   }, [watchlist]);
 
   return (
@@ -87,7 +91,7 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
         addToWatchlist,
         removeFromWatchlist,
         isWatchlisted,
-        updateWatchedEpisodes,
+        updateWatchedParts,
         getWatchlistItem,
         loading,
       }}

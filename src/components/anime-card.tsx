@@ -1,22 +1,25 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import type { JikanAnime } from '@/lib/types';
+import type { JikanAnyMedia } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Star } from 'lucide-react';
 
-interface AnimeCardProps {
-  anime: JikanAnime;
+interface MediaCardProps {
+  media: JikanAnyMedia;
 }
 
-export function AnimeCard({ anime }: AnimeCardProps) {
+export function MediaCard({ media }: MediaCardProps) {
+  const mediaType = 'episodes' in media ? 'anime' : 'manga';
+  const href = `/${mediaType}/${media.mal_id}`;
+
   return (
-    <Link href={`/anime/${anime.mal_id}`} className="group block">
+    <Link href={href} className="group block">
       <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-dark-pop-hover hover:-translate-y-1">
         <CardHeader className="p-0">
           <div className="aspect-[2/3] relative">
             <Image
-              src={anime.images.jpg.large_image_url || anime.images.jpg.image_url}
-              alt={anime.title}
+              src={media.images.jpg.large_image_url || media.images.jpg.image_url}
+              alt={media.title}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -25,12 +28,12 @@ export function AnimeCard({ anime }: AnimeCardProps) {
         </CardHeader>
         <CardContent className="p-4">
           <CardTitle className="text-base font-semibold leading-tight line-clamp-2 group-hover:text-primary">
-            {anime.title}
+            {media.title}
           </CardTitle>
-          {anime.score && (
+          {media.score && (
             <div className="mt-2 flex items-center text-sm text-muted-foreground">
               <Star className="w-4 h-4 mr-1 text-yellow-500 fill-yellow-500" />
-              <span>{anime.score}</span>
+              <span>{media.score}</span>
             </div>
           )}
         </CardContent>

@@ -1,20 +1,20 @@
 "use client";
 
 import { useWatchlist } from "@/context/watchlist-provider";
-import type { JikanAnime } from "@/lib/types";
+import type { JikanAnyMedia } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { Plus, Minus, Check, Trash2 } from "lucide-react";
+import { Plus, Minus, Check, Trash2, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 
 
-export function WatchlistButtons({ anime }: { anime: JikanAnime }) {
+export function WatchlistButtons({ media }: { media: JikanAnyMedia }) {
   const { 
     isWatchlisted,
     addToWatchlist, 
     removeFromWatchlist, 
-    updateWatchedEpisodes, 
+    updateWatchedParts, 
     getWatchlistItem,
     loading
   } = useWatchlist();
@@ -25,28 +25,32 @@ export function WatchlistButtons({ anime }: { anime: JikanAnime }) {
     return <div className="h-10 w-full bg-muted rounded-lg animate-pulse"></div>;
   }
   
-  const onList = isWatchlisted(anime.mal_id);
-  const watchlistItem = getWatchlistItem(anime.mal_id);
+  const onList = isWatchlisted(media.mal_id);
+  const watchlistItem = getWatchlistItem(media.mal_id);
 
   const handleAdd = () => {
-    addToWatchlist(anime);
-    toast({ title: "Added to Watchlist!", description: `"${anime.title}" has been added.` });
+    addToWatchlist(media);
+    toast({ title: `Added to Watchlist!`, description: `"${media.title}" has been added.` });
   };
 
   const handleRemove = () => {
-    removeFromWatchlist(anime.mal_id);
-    toast({ title: "Removed from Watchlist", description: `"${anime.title}" has been removed.`, variant: 'destructive' });
+    removeFromWatchlist(media.mal_id);
+    toast({ title: `Removed from Watchlist`, description: `"${media.title}" has been removed.`, variant: 'destructive' });
   };
   
-  const handleEpisodeChange = (change: number) => {
+  const handlePartChange = (change: number) => {
     if (watchlistItem) {
-      const newCount = watchlistItem.watchedEpisodes + change;
-      updateWatchedEpisodes(anime.mal_id, newCount);
+      const newCount = watchlistItem.watchedParts + change;
+      updateWatchedParts(media.mal_id, newCount);
     }
   };
 
   if (onList && watchlistItem) {
-    const progress = watchlistItem.episodes > 0 ? (watchlistItem.watchedEpisodes / watchlistItem.episodes) * 100 : 0;
+    const progress = watchlistItem.totalParts && watchlistItem.totalParts > 0 
+      ? (watchlistItem.watchedParts / watchlistItem.totalParts) * 100 
+      : 0;
+    
+    const partLabel = watchlistItem.type === 'anime' ? 'Episodes' : 'Chapters';
     
     return (
       <Card>
@@ -60,33 +64,35 @@ export function WatchlistButtons({ anime }: { anime: JikanAnime }) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center">
-            <span className="text-2xl font-bold">{watchlistItem.watchedEpisodes}</span>
-            <span className="text-muted-foreground"> / {watchlistItem.episodes || '??'} Episodes</span>
+            <span className="text-2xl font-bold">{watchlistItem.watchedParts}</span>
+            <span className="text-muted-foreground"> / {watchlistItem.totalParts || '??'} {partLabel}</span>
           </div>
           <Progress value={progress} />
           <div className="flex justify-between items-center gap-2">
             <Button 
               variant="outline" 
               size="icon"
-              onClick={() => handleEpisodeChange(-1)}
-              disabled={watchlistItem.watchedEpisodes === 0}
+              onClick={() => handlePartChange(-1)}
+              disabled={watchlistItem.watchedParts === 0}
             >
               <Minus className="h-4 w-4" />
             </Button>
-            <Button 
-              className="flex-grow"
-              variant="outline"
-              onClick={() => updateWatchedEpisodes(anime.mal_id, watchlistItem.episodes)}
-              disabled={watchlistItem.watchedEpisodes === watchlistItem.episodes}
-            >
-              <Check className="h-4 w-4 mr-2"/>
-              Complete
-            </Button>
+            {watchlistItem.totalParts && (
+              <Button 
+                className="flex-grow"
+                variant="outline"
+                onClick={() => watchlistItem.totalParts && updateWatchedParts(media.mal_id, watchlistItem.totalParts)}
+                disabled={watchlistItem.watchedParts === watchlistItem.totalParts}
+              >
+                <Check className="h-4 w-4 mr-2"/>
+                Complete
+              </Button>
+            )}
             <Button 
               variant="outline" 
               size="icon"
-              onClick={() => handleEpisodeChange(1)}
-              disabled={watchlistItem.watchedEpisodes === watchlistItem.episodes}
+              onClick={() => handlePartChange(1)}
+              disabled={watchlistItem.totalParts ? watchlistItem.watchedParts === watchlistItem.totalParts : false}
             >
               <Plus className="h-4 w-4" />
             </Button>

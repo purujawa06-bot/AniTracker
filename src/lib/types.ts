@@ -1,32 +1,59 @@
-export interface JikanAnime {
+export interface JikanImageSet {
+  image_url: string;
+  small_image_url: string;
+  large_image_url: string;
+}
+
+export interface JikanImages {
+  jpg: JikanImageSet;
+  webp: JikanImageSet;
+}
+
+export interface JikanTitle {
+  type: string;
+  title: string;
+}
+
+export interface JikanGenre {
+  mal_id: number;
+  name: string;
+  type: string;
+  url: string;
+}
+
+export interface JikanMedia {
   mal_id: number;
   url: string;
-  images: {
-    jpg: {
-      image_url: string;
-      small_image_url: string;
-      large_image_url: string;
-    };
-    webp: {
-      image_url: string;
-      small_image_url: string;
-      large_image_url: string;
-    };
-  };
+  images: JikanImages;
   title: string;
   title_english: string;
   title_japanese: string;
   synopsis: string;
-  episodes: number;
   score: number;
   rank: number;
   popularity: number;
   status: string;
-  rating: string;
-  duration: string;
-  genres: { mal_id: number; name: string }[];
+  genres: JikanGenre[];
   year: number;
+  type: 'anime' | 'manga'; // Media type
 }
+
+export interface JikanAnime extends JikanMedia {
+  type: 'anime';
+  episodes: number;
+  duration: string;
+  rating: string;
+}
+
+export interface JikanManga extends JikanMedia {
+  type: 'manga';
+  chapters: number | null;
+  volumes: number | null;
+  publishing: boolean;
+}
+
+export type JikanAnyMedia = JikanAnime | JikanManga;
+
 
 export interface JikanPagination {
     last_visible_page: number;
@@ -39,28 +66,22 @@ export interface JikanPagination {
     }
 }
 
-export interface JikanAPISearchResponse {
+export interface JikanAPISearchResponse<T> {
   pagination: JikanPagination;
-  data: JikanAnime[];
+  data: T[];
 }
 
-export interface JikanAPIGetByIdResponse {
-  data: JikanAnime;
+export interface JikanAPIGetByIdResponse<T> {
+  data: T;
 }
 
 export interface WatchlistItem {
   mal_id: number;
   title: string;
   image: string;
-  episodes: number;
-  watchedEpisodes: number;
-}
-
-export interface JikanGenre {
-    mal_id: number;
-    name: string;
-    url: string;
-    count: number;
+  type: 'anime' | 'manga';
+  totalParts: number | null; // episodes for anime, chapters for manga
+  watchedParts: number; // watchedEpisodes/readChapters
 }
 
 export interface JikanAPIGetGenresResponse {

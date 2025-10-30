@@ -15,8 +15,11 @@ export default function Header() {
           </Link>
         </div>
         <nav className="hidden flex-1 items-center space-x-4 md:flex">
-          <Link href="/browse">
-            <Button variant="ghost">Browse</Button>
+          <Link href="/browse/anime">
+            <Button variant="ghost">Browse Anime</Button>
+          </Link>
+          <Link href="/browse/manga">
+            <Button variant="ghost">Browse Manga</Button>
           </Link>
           <Link href="/watchlist">
             <Button variant="ghost">Watchlist</Button>

@@ -7,7 +7,7 @@ import BottomNav from '@/components/layout/bottom-nav';
 
 export const metadata: Metadata = {
   title: 'AniTracker',
-  description: 'Track your favorite anime.',
+  description: 'Track your favorite anime and manga.',
 };
 
 export default function RootLayout({

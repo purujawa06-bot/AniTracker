@@ -1,14 +1,18 @@
-import type { JikanAPISearchResponse, JikanAPIGetByIdResponse, JikanAPIGetGenresResponse } from '@/lib/types';
+import type { JikanAPISearchResponse, JikanAPIGetByIdResponse, JikanAPIGetGenresResponse, JikanAnime, JikanManga, JikanAnyMedia, JikanGenre } from '@/lib/types';
 
 const JIKAN_API_URL = 'https://api.jikan.moe/v4';
+
+type MediaType = 'anime' | 'manga';
 
 interface SearchOptions {
   page?: number;
   limit?: number;
   genre?: string;
+  type?: MediaType;
 }
 
-export async function searchAnime(query: string, options: SearchOptions = {}) {
+export async function searchMedia(query: string, options: SearchOptions = {}) {
+  const mediaType = options.type || 'anime';
   const params = new URLSearchParams();
   if (query) {
     params.set('q', query);
@@ -25,56 +29,69 @@ export async function searchAnime(query: string, options: SearchOptions = {}) {
   }
 
   try {
-    const response = await fetch(`${JIKAN_API_URL}/anime?${params.toString()}`);
+    const response = await fetch(`${JIKAN_API_URL}/${mediaType}?${params.toString()}`);
     if (!response.ok) {
-      throw new Error('Failed to fetch search results');
+      throw new Error(`Failed to fetch search results for ${mediaType}`);
     }
-    const data: JikanAPISearchResponse = await response.json();
+    const data: JikanAPISearchResponse<JikanAnyMedia> = await response.json();
+    // Manually add type to each item
+    data.data = data.data.map(item => ({ ...item, type: mediaType }));
     return data;
   } catch (error) {
-    console.error('Jikan API search error:', error);
+    console.error(`Jikan API search error for ${mediaType}:`, error);
     return { data: [], pagination: { has_next_page: false, current_page: 1 } };
   }
 }
 
-export async function getAnimeById(id: number | string) {
+export async function getMediaById(id: number | string, type: MediaType): Promise<JikanAnyMedia | null> {
   try {
-    const response = await fetch(`${JIKAN_API_URL}/anime/${id}/full`);
+    const response = await fetch(`${JIKAN_API_URL}/${type}/${id}/full`);
     if (!response.ok) {
-      throw new Error(`Failed to fetch anime with id ${id}`);
+      throw new Error(`Failed to fetch ${type} with id ${id}`);
     }
-    const data: JikanAPIGetByIdResponse = await response.json();
-    return data.data;
+    const data: JikanAPIGetByIdResponse<JikanAnyMedia> = await response.json();
+    return { ...data.data, type };
   } catch (error) {
-    console.error(`Jikan API get by id error for id ${id}:`, error);
+    console.error(`Jikan API get by id error for ${type} id ${id}:`, error);
     return null;
   }
 }
 
-export async function getTopAnime() {
-  try {
-    const response = await fetch(`${JIKAN_API_URL}/top/anime?filter=airing&limit=12`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch top anime');
+export async function getTopMedia(type: MediaType, filter: string, limit: number = 12): Promise<JikanAnyMedia[]> {
+   try {
+    const params = new URLSearchParams({ limit: limit.toString() });
+    if (filter) {
+        params.set('filter', filter);
     }
-    const data: JikanAPISearchResponse = await response.json();
-    return data.data;
+    const response = await fetch(`${JIKAN_API_URL}/top/${type}?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch top ${type}`);
+    }
+    const data: JikanAPISearchResponse<JikanAnyMedia> = await response.json();
+    return data.data.map(item => ({ ...item, type }));
   } catch (error) {
-    console.error('Jikan API get top anime error:', error);
+    console.error(`Jikan API get top ${type} error:`, error);
     return [];
   }
 }
 
-export async function getAnimeGenres() {
+
+export async function getGenres(type: MediaType): Promise<JikanGenre[]> {
   try {
-    const response = await fetch(`${JIKAN_API_URL}/genres/anime`);
+    const response = await fetch(`${JIKAN_API_URL}/genres/${type}`);
     if (!response.ok) {
-      throw new Error('Failed to fetch genres');
+      throw new Error(`Failed to fetch ${type} genres`);
     }
     const data: JikanAPIGetGenresResponse = await response.json();
     return data.data;
   } catch (error) {
-    console.error('Jikan API get genres error:', error);
+    console.error(`Jikan API get ${type} genres error:`, error);
     return [];
   }
 }
+
+// Legacy functions for compatibility, you can slowly phase them out
+export const searchAnime = (query: string, options: Omit<SearchOptions, 'type'> = {}) => searchMedia(query, {...options, type: 'anime'});
+export const getAnimeById = (id: number | string) => getMediaById(id, 'anime') as Promise<JikanAnime | null>;
+export const getTopAnime = () => getTopMedia('anime', 'airing', 12) as Promise<JikanAnime[]>;
+export const getAnimeGenres = () => getGenres('anime');

@@ -10,7 +10,8 @@ import { Clapperboard } from "lucide-react"
 
 const mainNav = [
   { href: "/", label: "Home" },
-  { href: "/browse", label: "Browse" },
+  { href: "/browse/anime", label: "Browse Anime" },
+  { href: "/browse/manga", label: "Browse Manga" },
   { href: "/watchlist", label: "Watchlist" },
 ]
 
