@@ -1,3 +1,63 @@
+import { getTopAnime } from '@/lib/jikan';
+import { SearchForm } from '@/components/search-form';
+import { AnimeCard } from '@/components/anime-card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Suspense } from 'react';
+
+async function TrendingAnime() {
+  const animeList = await getTopAnime();
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      {animeList.map((anime) => (
+        <AnimeCard key={anime.mal_id} anime={anime} />
+      ))}
+    </div>
+  );
+}
+
+function TrendingAnimeSkeleton() {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div key={i}>
+          <Skeleton className="aspect-[2/3] w-full rounded-lg" />
+          <Skeleton className="h-4 mt-2 w-3/4" />
+          <Skeleton className="h-4 mt-1 w-1/2" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function Home() {
-  return <></>;
+  return (
+    <>
+      <section className="w-full py-12 md:py-24 lg:py-32 bg-primary/10">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center space-y-4 text-center">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none font-headline text-primary">
+                Discover Your Next Favorite Anime
+              </h1>
+              <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+                AniTracker helps you find and keep track of anime you love.
+              </p>
+            </div>
+            <div className="w-full max-w-lg">
+              <SearchForm />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-12">
+        <div className="container">
+          <h2 className="text-2xl font-bold mb-6">Currently Airing</h2>
+          <Suspense fallback={<TrendingAnimeSkeleton />}>
+            <TrendingAnime />
+          </Suspense>
+        </div>
+      </section>
+    </>
+  );
 }
