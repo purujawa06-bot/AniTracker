@@ -1,26 +1,13 @@
-import { getTopMedia } from '@/lib/jikan';
+import { getTopMedia, getSeasonNow } from '@/lib/jikan';
 import { SearchForm } from '@/components/search-form';
-import { MediaCard } from '@/components/anime-card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Suspense } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { JikanAnyMedia } from '@/lib/types';
-
-async function TopMediaList({ type, filter }: { type: 'anime' | 'manga', filter: string }) {
-  const mediaList = await getTopMedia(type, filter);
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-      {mediaList.map((media: JikanAnyMedia) => (
-        <MediaCard key={media.mal_id} media={media} />
-      ))}
-    </div>
-  );
-}
+import { Skeleton } from '@/components/ui/skeleton';
+import { MediaCarousel } from '@/components/media-carousel';
 
 function TopMediaSkeleton() {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-      {Array.from({ length: 12 }).map((_, i) => (
+      {Array.from({ length: 6 }).map((_, i) => (
         <div key={i}>
           <Skeleton className="aspect-[2/3] w-full rounded-lg" />
           <Skeleton className="h-4 mt-2 w-3/4" />
@@ -52,24 +39,42 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-12">
+      <section className="py-12 space-y-12">
         <div className="container">
-           <Tabs defaultValue="anime" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 max-w-sm mx-auto">
-              <TabsTrigger value="anime">Top Airing Anime</TabsTrigger>
-              <TabsTrigger value="manga">Top Publishing Manga</TabsTrigger>
-            </TabsList>
-            <TabsContent value="anime" className="mt-6">
-              <Suspense fallback={<TopMediaSkeleton />}>
-                <TopMediaList type="anime" filter="airing" />
-              </Suspense>
-            </TabsContent>
-            <TabsContent value="manga" className="mt-6">
-               <Suspense fallback={<TopMediaSkeleton />}>
-                <TopMediaList type="manga" filter="publishing" />
-              </Suspense>
-            </TabsContent>
-          </Tabs>
+          <Suspense fallback={<TopMediaSkeleton />}>
+            <MediaCarousel 
+              title="Top Airing Anime"
+              fetcher={() => getTopMedia('anime', 'airing', 12)}
+              link="/browse/anime?sort=popularity"
+            />
+          </Suspense>
+        </div>
+        <div className="container">
+          <Suspense fallback={<TopMediaSkeleton />}>
+            <MediaCarousel 
+              title="Top Publishing Manga"
+              fetcher={() => getTopMedia('manga', 'publishing', 12)}
+              link="/browse/manga?sort=popularity"
+            />
+          </Suspense>
+        </div>
+         <div className="container">
+          <Suspense fallback={<TopMediaSkeleton />}>
+            <MediaCarousel 
+              title="Latest Anime"
+              fetcher={() => getSeasonNow(12)}
+              link="/browse/anime"
+            />
+          </Suspense>
+        </div>
+         <div className="container">
+          <Suspense fallback={<TopMediaSkeleton />}>
+             <MediaCarousel 
+              title="Latest Manga"
+              fetcher={() => getTopMedia('manga', 'upcoming', 12)}
+              link="/browse/manga"
+            />
+          </Suspense>
         </div>
       </section>
     </>

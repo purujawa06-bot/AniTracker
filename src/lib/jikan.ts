@@ -51,7 +51,7 @@ export async function searchMedia(query: string, options: SearchOptions = {}) {
     return data;
   } catch (error) {
     console.error(`Jikan API search error for ${mediaType}:`, error);
-    return { data: [], pagination: { has_next_page: false, current_page: 1 } };
+    return { data: [], pagination: { has_next_page: false, current_page: 1, last_visible_page: 1, items: { count:0, total: 0, per_page: 0} } };
   }
 }
 
@@ -83,6 +83,21 @@ export async function getTopMedia(type: MediaType, filter: string, limit: number
     return data.data.map(item => ({ ...item, type }));
   } catch (error) {
     console.error(`Jikan API get top ${type} error:`, error);
+    return [];
+  }
+}
+
+export async function getSeasonNow(limit: number = 12): Promise<JikanAnyMedia[]> {
+  try {
+    const params = new URLSearchParams({ limit: limit.toString() });
+    const response = await fetch(`${JIKAN_API_URL}/seasons/now?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch current season anime`);
+    }
+    const data: JikanAPISearchResponse<JikanAnyMedia> = await response.json();
+    return data.data.map(item => ({ ...item, type: 'anime' }));
+  } catch (error) {
+    console.error(`Jikan API get season now error:`, error);
     return [];
   }
 }
