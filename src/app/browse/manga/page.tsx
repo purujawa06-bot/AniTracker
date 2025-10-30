@@ -41,7 +41,7 @@ function SearchResultsSkeleton() {
 }
 
 async function MangaGrid({ genreId, page }: { genreId: string; page: number }) {
-  const { data: mediaList, pagination } = await searchMedia('', { type: 'manga', genre: genreId, page, limit: 24, orderBy: 'members', sort: 'desc' });
+  const { data: mediaList, pagination } = await searchMedia('', { type: 'manga', genre: genreId, page, limit: 24, orderBy: 'start_date', sort: 'desc' });
   const genres = await getGenres('manga');
   const genre = genres.find(g => g.mal_id.toString() === genreId);
 
