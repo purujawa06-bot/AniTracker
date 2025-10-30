@@ -27,6 +27,9 @@ export async function searchMedia(query: string, options: SearchOptions = {}) {
   if (options.genre) {
     params.set('genres', options.genre);
   }
+  params.set('orderby', 'start_date');
+  params.set('sort', 'desc');
+
 
   try {
     const response = await fetch(`${JIKAN_API_URL}/${mediaType}?${params.toString()}`);
