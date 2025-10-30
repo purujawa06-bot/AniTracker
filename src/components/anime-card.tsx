@@ -14,7 +14,7 @@ export function MediaCard({ media }: MediaCardProps) {
 
   return (
     <Link href={href} className="group block">
-      <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-dark-pop-hover hover:-translate-y-1">
+      <Card className="h-full overflow-hidden hover:shadow-dark-pop-hover hover:-translate-y-1">
         <CardHeader className="p-0">
           <div className="aspect-[2/3] relative">
             <Image
