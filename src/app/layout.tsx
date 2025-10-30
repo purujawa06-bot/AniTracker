@@ -3,6 +3,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Providers } from '@/components/layout/providers';
 import Header from '@/components/layout/header';
+import BottomNav from '@/components/layout/bottom-nav';
 
 export const metadata: Metadata = {
   title: 'AniTracker',
@@ -26,8 +27,11 @@ export default function RootLayout({
       </head>
       <body className={cn('font-body antialiased min-h-screen bg-background')}>
         <Providers>
-          <Header />
-          <main>{children}</main>
+          <div className="relative flex min-h-dvh flex-col">
+            <Header />
+            <main className="flex-1 pb-20 md:pb-0">{children}</main>
+            <BottomNav />
+          </div>
         </Providers>
       </body>
     </html>

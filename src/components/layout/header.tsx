@@ -1,6 +1,8 @@
+
 import Link from 'next/link';
 import { Clapperboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { MobileNav } from '@/components/layout/mobile-nav';
 
 export default function Header() {
   return (
@@ -12,7 +14,7 @@ export default function Header() {
             <span className="font-bold">AniTracker</span>
           </Link>
         </div>
-        <nav className="flex flex-1 items-center space-x-4">
+        <nav className="hidden flex-1 items-center space-x-4 md:flex">
           <Link href="/browse">
             <Button variant="ghost">Browse</Button>
           </Link>
@@ -20,6 +22,9 @@ export default function Header() {
             <Button variant="ghost">Watchlist</Button>
           </Link>
         </nav>
+        <div className="flex flex-1 justify-end md:hidden">
+          <MobileNav />
+        </div>
       </div>
     </header>
   );
