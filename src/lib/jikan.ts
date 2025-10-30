@@ -9,15 +9,23 @@ interface SearchOptions {
   limit?: number;
   genre?: string;
   type?: MediaType;
+  sfw?: boolean;
+  orderBy?: string;
+  sort?: 'asc' | 'desc';
 }
 
 export async function searchMedia(query: string, options: SearchOptions = {}) {
   const mediaType = options.type || 'anime';
   const params = new URLSearchParams();
+  
   if (query) {
     params.set('q', query);
   }
-  params.set('sfw', 'true');
+  
+  if (options.sfw !== false) {
+    params.set('sfw', 'true');
+  }
+
   if (options.page) {
     params.set('page', options.page.toString());
   }
@@ -27,8 +35,9 @@ export async function searchMedia(query: string, options: SearchOptions = {}) {
   if (options.genre) {
     params.set('genres', options.genre);
   }
-  params.set('orderby', 'start_date');
-  params.set('sort', 'desc');
+  
+  params.set('orderby', options.orderBy || 'start_date');
+  params.set('sort', options.sort || 'desc');
 
 
   try {
