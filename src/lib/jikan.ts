@@ -43,7 +43,8 @@ export async function searchMedia(query: string, options: SearchOptions = {}) {
   try {
     const response = await fetch(`${JIKAN_API_URL}/${mediaType}?${params.toString()}`);
     if (!response.ok) {
-      throw new Error(`Failed to fetch search results for ${mediaType}`);
+      console.error(`Jikan API search error for ${mediaType}: status ${response.status}`);
+      return { data: [], pagination: { has_next_page: false, current_page: 1, last_visible_page: 1, items: { count:0, total: 0, per_page: 0} } };
     }
     const data: JikanAPISearchResponse<JikanAnyMedia> = await response.json();
     // Manually add type to each item
@@ -59,7 +60,8 @@ export async function getMediaById(id: number | string, type: MediaType): Promis
   try {
     const response = await fetch(`${JIKAN_API_URL}/${type}/${id}/full`);
     if (!response.ok) {
-      throw new Error(`Failed to fetch ${type} with id ${id}`);
+      console.error(`Jikan API get by id error for ${type} id ${id}: status ${response.status}`);
+      return null;
     }
     const data: JikanAPIGetByIdResponse<JikanAnyMedia> = await response.json();
     return { ...data.data, type };
@@ -77,7 +79,8 @@ export async function getTopMedia(type: MediaType, filter: string, limit: number
     }
     const response = await fetch(`${JIKAN_API_URL}/top/${type}?${params.toString()}`);
     if (!response.ok) {
-      throw new Error(`Failed to fetch top ${type}`);
+      console.error(`Jikan API get top ${type} error: status ${response.status}`);
+      return [];
     }
     const data: JikanAPISearchResponse<JikanAnyMedia> = await response.json();
     return data.data.map(item => ({ ...item, type }));
@@ -92,7 +95,8 @@ export async function getSeasonNow(limit: number = 12): Promise<JikanAnyMedia[]>
     const params = new URLSearchParams({ limit: limit.toString() });
     const response = await fetch(`${JIKAN_API_URL}/seasons/now?${params.toString()}`);
     if (!response.ok) {
-      throw new Error(`Failed to fetch current season anime`);
+      console.error(`Jikan API get season now error: status ${response.status}`);
+      return [];
     }
     const data: JikanAPISearchResponse<JikanAnyMedia> = await response.json();
     return data.data.map(item => ({ ...item, type: 'anime' }));
@@ -105,9 +109,10 @@ export async function getSeasonNow(limit: number = 12): Promise<JikanAnyMedia[]>
 
 export async function getGenres(type: MediaType): Promise<JikanGenre[]> {
   try {
-    const response = await fetch(`${JIKAN_API_URL}/genres/${type}`);
+    const response = await fetch(`${JIKAN_APIURL}/genres/${type}`);
     if (!response.ok) {
-      throw new Error(`Failed to fetch ${type} genres`);
+      console.error(`Jikan API get ${type} genres error: status ${response.status}`);
+      return [];
     }
     const data: JikanAPIGetGenresResponse = await response.json();
     return data.data;
