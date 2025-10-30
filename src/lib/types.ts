@@ -28,8 +28,19 @@ export interface JikanAnime {
   year: number;
 }
 
+export interface JikanPagination {
+    last_visible_page: number;
+    has_next_page: boolean;
+    current_page: number;
+    items: {
+        count: number;
+        total: number;
+        per_page: number;
+    }
+}
+
 export interface JikanAPISearchResponse {
-  pagination: any;
+  pagination: JikanPagination;
   data: JikanAnime[];
 }
 
@@ -43,4 +54,15 @@ export interface WatchlistItem {
   image: string;
   episodes: number;
   watchedEpisodes: number;
+}
+
+export interface JikanGenre {
+    mal_id: number;
+    name: string;
+    url: string;
+    count: number;
+}
+
+export interface JikanAPIGetGenresResponse {
+    data: JikanGenre[];
 }

@@ -3,6 +3,7 @@ import { AnimeCard } from '@/components/anime-card';
 import { SearchForm } from '@/components/search-form';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PaginationComponent } from '@/components/pagination';
 
 function SearchResultsSkeleton() {
   return (
@@ -18,8 +19,8 @@ function SearchResultsSkeleton() {
   );
 }
 
-async function SearchResults({ query }: { query: string }) {
-  const animeList = await searchAnime(query);
+async function SearchResults({ query, page }: { query: string, page: number }) {
+  const { data: animeList, pagination } = await searchAnime(query, { page });
 
   if (animeList.length === 0) {
     return (
@@ -31,10 +32,19 @@ async function SearchResults({ query }: { query: string }) {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-      {animeList.map((anime) => (
-        <AnimeCard key={anime.mal_id} anime={anime} />
-      ))}
+    <div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {animeList.map((anime) => (
+                <AnimeCard key={anime.mal_id} anime={anime} />
+            ))}
+        </div>
+        <div className="mt-8 flex justify-center">
+            <PaginationComponent 
+                currentPage={page} 
+                hasNextPage={pagination.has_next_page}
+                buildLink={(p) => `/search?q=${encodeURIComponent(query)}&page=${p}`}
+            />
+        </div>
     </div>
   );
 }
@@ -45,6 +55,7 @@ export default function SearchPage({
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const query = typeof searchParams?.q === 'string' ? searchParams.q : '';
+  const page = typeof searchParams?.page === 'string' ? parseInt(searchParams.page, 10) : 1;
 
   if (!query) {
     return (
@@ -63,7 +74,7 @@ export default function SearchPage({
         Search Results for <span className="text-primary">"{query}"</span>
       </h1>
       <Suspense fallback={<SearchResultsSkeleton />}>
-        <SearchResults query={query} />
+        <SearchResults query={query} page={page} />
       </Suspense>
     </div>
   );

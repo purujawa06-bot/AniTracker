@@ -13,6 +13,9 @@ export default function Header() {
           </Link>
         </div>
         <nav className="flex flex-1 items-center space-x-4">
+          <Link href="/browse">
+            <Button variant="ghost">Browse</Button>
+          </Link>
           <Link href="/watchlist">
             <Button variant="ghost">Watchlist</Button>
           </Link>
