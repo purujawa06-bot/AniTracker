@@ -9,9 +9,15 @@ import { JikanAnyMedia } from '@/lib/types';
 
 async function GenreList() {
   const genres = await getGenres('anime');
+  const uniqueGenres = genres.filter((genre, index, self) =>
+    index === self.findIndex((g) => (
+      g.mal_id === genre.mal_id
+    ))
+  );
+
   return (
     <div className="flex flex-wrap gap-2">
-      {genres.map(genre => (
+      {uniqueGenres.map(genre => (
         <Link href={`/browse/anime?genre=${genre.mal_id}`} key={genre.mal_id}>
           <Badge variant="secondary" className="hover:bg-primary/20 transition-colors cursor-pointer">{genre.name}</Badge>
         </Link>
