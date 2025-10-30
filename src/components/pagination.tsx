@@ -1,8 +1,5 @@
-"use client";
-
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { PaginationClientButtons } from './pagination-client-buttons';
 
 interface PaginationComponentProps {
     currentPage: number;
@@ -13,21 +10,22 @@ interface PaginationComponentProps {
 export function PaginationComponent({ currentPage, hasNextPage, buildLink }: PaginationComponentProps) {
     return (
         <div className="flex items-center justify-center space-x-2">
-            <Link href={buildLink(currentPage - 1)} passHref>
-                <Button variant="outline" size="icon" disabled={currentPage <= 1}>
-                    <ChevronLeft className="h-4 w-4" />
-                </Button>
-            </Link>
-
-            <span className="text-sm font-medium">
+            <PaginationClientButtons
+                prevHref={currentPage > 1 ? buildLink(currentPage - 1) : undefined}
+                nextHref={hasNextPage ? buildLink(currentPage + 1) : undefined}
+                prevDisabled={currentPage <= 1}
+                nextDisabled={!hasNextPage}
+            />
+            <span className="text-sm font-medium px-2">
                 Page {currentPage}
             </span>
-
-            <Link href={buildLink(currentPage + 1)} passHref>
-                <Button variant="outline" size="icon" disabled={!hasNextPage}>
-                    <ChevronRight className="h-4 w-4" />
-                </Button>
-            </Link>
+            <PaginationClientButtons
+                isNext
+                nextHref={hasNextPage ? buildLink(currentPage + 1) : undefined}
+                prevHref={currentPage > 1 ? buildLink(currentPage - 1) : undefined}
+                nextDisabled={!hasNextPage}
+                prevDisabled={currentPage <= 1}
+            />
         </div>
     );
 }
