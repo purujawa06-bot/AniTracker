@@ -11,7 +11,7 @@ interface AnimeCardProps {
 export function AnimeCard({ anime }: AnimeCardProps) {
   return (
     <Link href={`/anime/${anime.mal_id}`} className="group block">
-      <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-105">
+      <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-dark-pop-hover hover:-translate-y-1">
         <CardHeader className="p-0">
           <div className="aspect-[2/3] relative">
             <Image
