@@ -9,28 +9,36 @@ import { Trash2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 
+function WatchlistSkeleton() {
+  return (
+    <div className="container py-8">
+      <h1 className="text-3xl font-bold mb-6">My Watchlist</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="flex flex-col">
+            <Skeleton className="aspect-video rounded-t-lg" />
+            <CardHeader>
+              <Skeleton className="h-6 w-3/4" />
+            </CardHeader>
+            <CardContent className="flex-grow space-y-2">
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-4 w-full" />
+            </CardContent>
+            <CardFooter>
+              <Skeleton className="h-9 w-full" />
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function WatchlistPage() {
   const { watchlist, removeFromWatchlist, loading } = useWatchlist();
 
   if (loading) {
-    return (
-      <div className="container py-8">
-        <h1 className="text-3xl font-bold mb-6">My Watchlist</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i}>
-              <Skeleton className="aspect-video rounded-t-lg" />
-              <CardHeader><Skeleton className="h-6 w-3/4" /></CardHeader>
-              <CardContent className="space-y-2">
-                <Skeleton className="h-4 w-1/2" />
-                <Skeleton className="h-2 w-full" />
-              </CardContent>
-              <CardFooter><Skeleton className="h-9 w-full" /></CardFooter>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
+    return <WatchlistSkeleton />;
   }
 
   if (watchlist.length === 0) {

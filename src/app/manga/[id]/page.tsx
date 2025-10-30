@@ -33,8 +33,8 @@ export default async function MediaDetailPage({ params }: MediaDetailPageProps) 
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-1">
+      <div className="flex flex-col md:flex-row gap-8">
+        <div className="w-full md:w-1/3 flex-shrink-0">
           <Card className="overflow-hidden sticky top-20">
             <Image
               src={manga.images.jpg.large_image_url}
@@ -49,7 +49,7 @@ export default async function MediaDetailPage({ params }: MediaDetailPageProps) 
           </Card>
         </div>
 
-        <div className="md:col-span-2">
+        <div className="w-full md:w-2/3">
           <h1 className="text-4xl font-bold font-headline mb-2">{manga.title}</h1>
           <p className="text-lg text-muted-foreground mb-4">{manga.title_english}</p>
           
