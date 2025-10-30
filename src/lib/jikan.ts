@@ -1,16 +1,26 @@
+
 import type { JikanAPISearchResponse, JikanAPIGetByIdResponse, JikanAPIGetGenresResponse, JikanAnime, JikanManga, JikanAnyMedia, JikanGenre } from '@/lib/types';
 
 const JIKAN_API_URL = 'https://api.jikan.moe/v4';
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function fetchWithRateLimit<T>(url: string): Promise<T> {
-  await sleep(2000); // Wait for 2 seconds to avoid rate limiting
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Jikan API request failed: ${response.status} ${response.statusText} for ${url}`);
+async function fetchWithRateLimit<T>(url: string, retries = 3, delay = 1000): Promise<T> {
+  for (let i = 0; i < retries; i++) {
+    await sleep(500); // Base delay to not hit the rate limit in the first place
+    const response = await fetch(url);
+    if (response.ok) {
+      return response.json() as Promise<T>;
+    }
+    if (response.status === 429) {
+      console.warn(`Jikan API rate limited for ${url}. Retrying in ${delay}ms...`);
+      await sleep(delay);
+      delay *= 2; // Exponential backoff
+    } else {
+       throw new Error(`Jikan API request failed: ${response.status} ${response.statusText} for ${url}`);
+    }
   }
-  return response.json() as Promise<T>;
+  throw new Error(`Jikan API request failed for ${url} after ${retries} retries.`);
 }
 
 
