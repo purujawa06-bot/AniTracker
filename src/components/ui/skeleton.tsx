@@ -1,15 +1,14 @@
-import { cn } from "@/lib/utils"
+"use client";
 
-function Skeleton({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn("animate-pulse rounded-md bg-muted", className)}
-      {...props}
-    />
-  )
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css'
+
+function ThemedSkeleton(props: React.ComponentProps<typeof Skeleton>) {
+    return (
+        <SkeletonTheme baseColor="hsl(var(--muted))" highlightColor="hsl(var(--secondary))">
+            <Skeleton {...props} />
+        </SkeletonTheme>
+    )
 }
 
-export { Skeleton }
+export { ThemedSkeleton as Skeleton };
